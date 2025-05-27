@@ -1,6 +1,7 @@
 package store.order;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class OrderService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Cacheable("products")
     private ProductOut findProductById(String id) {
         String url = "http://product:8080/product/" + id;
         try {
@@ -92,6 +94,7 @@ public class OrderService {
         return OrderParser.to(order, savedItems, products);
     }
 
+    @Cacheable("orders")
     public List<OrderOut> findAllByAccount(String idAccount) {
         List<OrderOut> result = new ArrayList<>();
         for (OrderModel orderModel : orderRepository.findByIdAccount(idAccount)) {
@@ -109,7 +112,7 @@ public class OrderService {
         return result;
     }
 
-
+    @Cacheable("orders")
     public OrderOut findByIdAndAccount(String id, String idAccount) {
         // Buscar o pedido
         OrderModel orderModel = orderRepository.findById(id)

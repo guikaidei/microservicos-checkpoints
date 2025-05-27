@@ -50,6 +50,10 @@ services:
       DATABASE_DB: ${DATABASE_DB:-store}
       DATABASE_USER: ${DATABASE_USER:-store}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-store}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
 
   order:
     hostname: order
@@ -60,8 +64,36 @@ services:
       DATABASE_DB: ${DATABASE_DB:-store}
       DATABASE_USER: ${DATABASE_USER:-store}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-store}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
-  # exchange:
-  #   build:
-  #     context: ./exchange-service
-  #     dockerfile: Dockerfile
+  redis:
+    image: redis:7
+    hostname: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - $VOLUME/redis:/data
+    restart: always
+
+  prometheus:
+    image: prom/prometheus:latest
+    hostname: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - $VOLUME/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana-enterprise
+    hostname: grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - $VOLUME/grafana:/var/lib/grafana
+      - $VOLUME/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources      
+    restart: always
+    depends_on:
+      - prometheus
