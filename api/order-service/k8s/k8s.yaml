@@ -33,7 +33,7 @@ metadata:
   labels:
     app: order
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: order
@@ -119,6 +119,6 @@ spec:
     app: order
   ports:
   - protocol: TCP
-    port: 80
+    port: 8080
     targetPort: 8080
   type: ClusterIP
